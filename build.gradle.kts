@@ -6,3 +6,13 @@ repositories {
     mavenCentral()
     maven("https://jitpack.io/")
 }
+
+tasks {
+    withType(Test::class) {
+        useJUnitPlatform()
+    }
+}
+
+dependencies {
+    testImplementation(kotlin("test"))
+}
