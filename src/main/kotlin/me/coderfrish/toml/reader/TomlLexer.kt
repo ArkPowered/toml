@@ -1,103 +1,68 @@
 package me.coderfrish.toml.reader
 
 class TomlLexer(private val chars: CharArray) {
+    constructor(str: String): this(str.toCharArray())
+
     companion object {
-        private const val FLOAT_PATTERN: String = "^-?(?:\\d+\\.\\d*|\\.\\d+)$"
-        private const val INTEGER_PATTERN: String = "^-?\\d+$"
+        private const val NORMAL_IDENTIFIER_PATTERN = "[A-Za-z0-9_-]"
     }
 
-    private val tokens: MutableList<TomlToken> = ArrayList()
-    private var offset = 0
-    private var line = 1
-    private var column = 1
+    private val tokens = mutableListOf<TomlToken>()
+    private var position = 0
 
-    constructor(str: String) : this(str.toCharArray())
+    private fun peek(): Char = chars[position]
 
-    fun tokenize(): MutableList<TomlToken> {
-        try {
-            while (offset < chars.size) {
-                this.tokenize0()
-
-                column++
-                offset++
-            }
-
-            return tokens
-        } catch (e: Exception) {
-            throw RuntimeException("[$column,$line] parse exception.", e)
+    private fun readString(): String {
+        val builder = StringBuilder()
+        position++
+        while (peek() != '"') {
+            builder.append(chars[position++])
         }
+        position++
+
+        return builder.toString()
     }
 
-    private fun tokenize0() {
-        when (peek()) {
-            '"' -> tokens.add(TomlToken(TokenType.STRING, readString()))
-            '\n' -> {
-                line++
-                column = 1
-            }
-
-            '=' -> tokens.add(TomlToken(TokenType.EQUAL, "="))
-            else -> this.readIdentifier0(tokens)
+    private fun readIdentifier(): String {
+        val builder = StringBuilder()
+        while (isIdentifierPart(chars[this.position]) || chars[this.position] == '.') {
+            builder.append(chars[this.position++])
         }
+
+        return builder.toString()
     }
 
-    private fun readIdentifier0(tokens: MutableList<TomlToken>) {
-        if (peek().isJavaIdentifierStart()) {
-            when (val identifier = readIdentifier()) {
-                "false", "true" -> tokens.add(
-                    TomlToken(TokenType.BOOLEAN, identifier)
-                )
+    internal fun tokenize(): List<TomlToken> {
+        while (this.position < chars.size) {
+            when (chars[this.position]) {
+                '=' -> {
+                    tokens.add(TomlToken.equalsOf(
+                        chars[this.position++]
+                    ))
+                }
 
-                else -> tokens.add(
-                    TomlToken(TokenType.IDENTIFIER, identifier)
-                )
-            }
-        } else {
-            if (Character.isDigit(peek())) {
-                val number = readNumber()
+                '\n', ' ' -> {
+                    position++
+                }
 
-                if (number.matches(FLOAT_PATTERN.toRegex())) {
-                    tokens.add(TomlToken(TokenType.FLOAT, number))
-                } else if (number.matches(INTEGER_PATTERN.toRegex())) {
-                    tokens.add(TomlToken(TokenType.INTEGER, number))
-                } else {
-                    throw RuntimeException("$number is not a number.")
+                '"' -> {
+                    tokens.add(TomlToken.stringOf(
+                        readString()
+                    ))
+                }
+
+                else -> {
+                    tokens.add(TomlToken.identifierOf(
+                        readIdentifier()
+                    ))
                 }
             }
         }
+
+        return this.tokens
     }
 
-    fun readIdentifier(): String {
-        val builder = StringBuilder()
-        while (peek().isJavaIdentifierPart() || peek() == '-') {
-            builder.append(chars[offset++])
-        }
-        this.offset -= 1
-
-        return builder.toString()
+    private fun isIdentifierPart(char: Char): Boolean {
+        return char.toString().matches(NORMAL_IDENTIFIER_PATTERN.toRegex())
     }
-
-
-    fun readNumber(): String {
-        val builder = StringBuilder()
-        while (peek().isDigit() || peek() == '.' || peek() == '-') {
-            builder.append(chars[offset++])
-        }
-        this.offset -= 1
-
-        return builder.toString()
-    }
-
-    fun readString(): String {
-        val builder = StringBuilder()
-        this.offset += 1
-        while (peek() != '"') {
-            builder.append(chars[offset++])
-        }
-        this.offset += 1
-
-        return builder.toString()
-    }
-
-    fun peek(): Char = chars[offset]
 }
