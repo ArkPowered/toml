@@ -8,7 +8,8 @@ class LexerTest {
     @Test
     fun testLexer() {
         val toml = """
-            age=123456
+            admin=true
+            age=15
             name="Frish2021"
             message="Hello World!!"
         """.trimIndent()
@@ -21,6 +22,7 @@ class LexerTest {
 
         val lexer = TomlLexer(toml)
         val parser = TomlParser(lexer)
-        parser.parse()
+        val mapper = parser.parse()
+        println(mapper["admin"] is Boolean)
     }
 }
