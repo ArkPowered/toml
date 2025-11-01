@@ -1,7 +1,7 @@
 package me.coderfrish.toml.reader
 
 enum class TokenType {
-    EQUALS,
+    EQUALS, EOF,
 
     STRING, IDENTIFIER
 }

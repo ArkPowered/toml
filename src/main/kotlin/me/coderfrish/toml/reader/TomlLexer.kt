@@ -1,11 +1,9 @@
 package me.coderfrish.toml.reader
 
+import me.coderfrish.toml.common.RegexUtils.isIdentifierPart
+
 class TomlLexer(private val chars: CharArray) {
     constructor(str: String): this(str.toCharArray())
-
-    companion object {
-        private const val NORMAL_IDENTIFIER_PATTERN = "[A-Za-z0-9_-]"
-    }
 
     private val tokens = mutableListOf<TomlToken>()
     private var position = 0
@@ -59,10 +57,7 @@ class TomlLexer(private val chars: CharArray) {
             }
         }
 
+        tokens.add(TomlToken(TokenType.EOF, "eof"))
         return this.tokens
-    }
-
-    private fun isIdentifierPart(char: Char): Boolean {
-        return char.toString().matches(NORMAL_IDENTIFIER_PATTERN.toRegex())
     }
 }

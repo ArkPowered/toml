@@ -1,6 +1,7 @@
 package me.coderfrish.test
 
 import me.coderfrish.toml.reader.TomlLexer
+import me.coderfrish.toml.reader.TomlParser
 import org.junit.jupiter.api.Test
 
 class LexerTest {
@@ -19,8 +20,7 @@ class LexerTest {
          */
 
         val lexer = TomlLexer(toml)
-        for (token in lexer.tokenize()) {
-            println("${token.type} | ${token.value}")
-        }
+        val parser = TomlParser(lexer)
+        parser.parse()
     }
 }
