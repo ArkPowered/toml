@@ -1,7 +1,7 @@
 package me.coderfrish.test
 
-import me.coderfrish.toml.TomlLexer
-import me.coderfrish.toml.TomlParser
+import me.coderfrish.toml.reader.TomlLexer
+import me.coderfrish.toml.reader.TomlParser
 import org.junit.jupiter.api.Test
 
 class LexerTest {
