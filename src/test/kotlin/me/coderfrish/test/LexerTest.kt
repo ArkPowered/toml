@@ -1,5 +1,6 @@
 package me.coderfrish.test
 
+import me.coderfrish.toml.TomlLexer
 import me.coderfrish.toml.TomlParser
 import org.junit.jupiter.api.Test
 
@@ -7,12 +8,17 @@ class LexerTest {
     @Test
     fun testLexer() {
         val toml = """
+            age=15.5515213
             admin=true
-            name="Frish2021" 
-            message.text="Hello World!!!"
+            name="Frish2021"
+            message-text="Hello World!!!"
         """.trimIndent()
-        val parser = TomlParser(toml)
-        parser.parse()
+        val lexer = TomlLexer(toml)
+        val parser = TomlParser(lexer)
+        val parse = parser.parse()
+
+        println(parse["name"])
+        println(parse["age"] is Float)
     }
 
     @Test

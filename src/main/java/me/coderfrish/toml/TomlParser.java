@@ -1,58 +1,71 @@
 package me.coderfrish.toml;
 
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TomlParser {
-    private final char[] chars;
+    private final Map<String, Object> entries = new LinkedHashMap<>();
+    private final List<TomlToken> tokens;
     private int offset = 0;
 
-    public TomlParser(String chars) {
-        this.chars = chars.toCharArray();
+    public TomlParser(TomlLexer lexer) {
+        this.tokens = lexer.tokenize();
     }
 
-    public void parse() {
-        while (offset < chars.length) {
-            char ch = chars[offset];
-            if (ch == '"') {
-                System.out.println("String | " + readString());
-            } else if (ch == '=') {
-                System.out.println("Equals | " + ch);
-            } else {
-                if (Character.isJavaIdentifierStart(ch)) {
-                    String identifier = readIdentifier();
-                    switch (identifier) {
-                        case "false", "true" -> {
-                            System.out.println("Bool | " + identifier);
-                        }
+    /* 目前好像是这样写的 */
+    public Map<String, Object> parse() {
+        while (this.offset < this.tokens.size()) {
+            TomlToken token = this.tokens.get(this.offset);
+            if (token.type() == TokenType.IDENTIFIER) {
+                TomlToken equals = this.tokens.get(this.offset + 1);
 
-                        default -> {
-                            System.out.println("Identifier | " + identifier);
+                if (equals.type() == TokenType.EQUAL) {
+                    this.offset = this.offset + 1;
+                    TomlToken value = this.tokens.get(this.offset + 1);
+
+                    if (value.type() != TokenType.IDENTIFIER) {
+                        switch (value.type()) {
+                            case STRING ->
+                                    entries.put(token.value(), parseString(value.value()));
+
+                            case INTEGER ->
+                                entries.put(token.value(), parseInteger(value.value()));
+
+                            case FLOAT ->
+                                entries.put(token.value(), parseFloat(value.value()));
+
+                            case BOOLEAN ->
+                                entries.put(token.value(), parseBoolean(value.value()));
+
+                            default ->
+                                throw new RuntimeException(token.type() + " is not a value.");
                         }
+                    } else {
+                        throw new RuntimeException("Value cannot be identifier.");
                     }
                 }
             }
 
-            offset++;
+            this.offset++;
         }
+
+        return this.entries;
     }
 
-    public String readIdentifier() {
-        StringBuilder identifier = new StringBuilder();
-        while (Character.isJavaIdentifierPart(chars[offset]) || chars[offset] == '.') {
-            identifier.append(chars[offset++]);
-        }
-        this.offset = this.offset - 1;
-
-        return identifier.toString();
+    public Object parseString(String value) {
+        return value;
     }
 
-    public String readString() {
-        StringBuilder string = new StringBuilder();
-        this.offset = this.offset + 1;
-        while (chars[offset] != '"') {
-            string.append(chars[offset++]);
-        }
+    public Object parseInteger(String value) {
+        return Integer.parseInt(value);
+    }
 
-        return string.toString();
+    public Object parseFloat(String value) {
+        return Float.parseFloat(value);
+    }
+
+    public boolean parseBoolean(String value) {
+        return Boolean.parseBoolean(value);
     }
 }
