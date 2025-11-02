@@ -1,8 +1,9 @@
 package me.coderfrish.toml.reader
 
 import me.coderfrish.toml.base.BaseLexer
-import me.coderfrish.toml.shared.BOOLEAN_PATTERN
+import me.coderfrish.toml.tokens.TokenType
 import me.coderfrish.toml.tokens.TomlToken
+import me.coderfrish.toml.shared.BOOLEAN_PATTERN
 import me.coderfrish.toml.shared.IDENTIFIER_PATTERN
 import me.coderfrish.toml.shared.MatchUtils.matches
 import me.coderfrish.toml.tokens.TokenType.STRING
@@ -10,9 +11,8 @@ import me.coderfrish.toml.tokens.TokenType.NUMBER
 import me.coderfrish.toml.tokens.TokenType.EQUALS
 import me.coderfrish.toml.tokens.TokenType.BOOLEAN
 import me.coderfrish.toml.tokens.TokenType.IDENTIFIER
+import me.coderfrish.toml.shared.MatchUtils.isRawNumber
 import me.coderfrish.toml.shared.QUOTA_NOT_CONSISTENT_EXCEPTION
-import me.coderfrish.toml.shared.DECIMAL_INTEGER_PATTERN
-import me.coderfrish.toml.tokens.TokenType
 
 
 /**
@@ -21,7 +21,7 @@ import me.coderfrish.toml.tokens.TokenType
 class TomlLexer(str: String) : BaseLexer(str) {
     override fun parseIdentifier(): TomlToken {
         val builder = StringBuilder()
-        while (matches(peek(), IDENTIFIER_PATTERN)) {
+        while (offset < str.length && matches(peek(), IDENTIFIER_PATTERN)) {
             builder.append(peekWithAdvance())
         }
 
@@ -33,9 +33,9 @@ class TomlLexer(str: String) : BaseLexer(str) {
 
     private fun parseIdentifierType(string: String): TokenType =
         if (isNotTokenEmpty() && lastType().equals(EQUALS)) {
-            if (matches(string, DECIMAL_INTEGER_PATTERN))
+            if (matches(string, BOOLEAN_PATTERN))
                 BOOLEAN
-            else if (matches(string, BOOLEAN_PATTERN))
+            else if (isRawNumber(string))
                 NUMBER
             else
                 IDENTIFIER
@@ -47,7 +47,7 @@ class TomlLexer(str: String) : BaseLexer(str) {
     override fun parseString(char: Char): TomlToken {
         this.advance()
         val builder = StringBuilder()
-        while (peek() != '"' && peek() != '\'') {
+        while (offset < str.length && (peek() != '"' && peek() != '\'')) {
             builder.append(peekWithAdvance())
         }
         if (peek() != char) error(QUOTA_NOT_CONSISTENT_EXCEPTION)
