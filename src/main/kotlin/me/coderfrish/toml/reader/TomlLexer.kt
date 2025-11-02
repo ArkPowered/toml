@@ -45,7 +45,11 @@ class TomlLexer(str: String) : BaseLexer(str) {
         this.advance()
         val builder = StringBuilder()
         while (offset < str.length && (peek() != '"' && peek() != '\'')) {
-            builder.append(peekWithAdvance())
+            if (peek() == '\\') {
+                builder.append(parseEscapeSequence())
+            } else {
+                builder.append(peekWithAdvance())
+            }
         }
         if (peek() != char) error(QUOTA_NOT_CONSISTENT_EXCEPTION)
         this.advance()
@@ -62,4 +66,32 @@ class TomlLexer(str: String) : BaseLexer(str) {
         } else {
             IDENTIFIER
         }
+
+    private fun parseEscapeSequence(): Char {
+        advance()
+        return when (val escapeChar = peek()) {
+            'b' -> { advance(); '\b' }
+            't' -> { advance(); '\t' }
+            'n' -> { advance(); '\n' }
+            'f' -> { advance(); '\u000C' }
+            'r' -> { advance(); '\r' }
+            '"' -> { advance(); '"' }
+            '\\' -> { advance(); '\\' }
+            'u' -> parseUnicodeEscape(4)
+            'U' -> parseUnicodeEscape(8)
+            else -> error("Invalid escape sequence: \\$escapeChar")
+        }
+    }
+
+    private fun parseUnicodeEscape(digits: Int): Char {
+        advance()
+        val hex = str.substring(offset, offset + digits)
+        try {
+            val codePoint = hex.toInt(16)
+            repeat(digits) { advance() }
+            return codePoint.toChar()
+        } catch (e: NumberFormatException) {
+            error("Invalid Unicode escape sequence: \\u$hex")
+        }
+    }
 }
