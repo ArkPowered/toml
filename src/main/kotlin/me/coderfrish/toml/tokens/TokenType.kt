@@ -1,7 +1,10 @@
 package me.coderfrish.toml.tokens
 
 enum class TokenType {
-    EQUALS, ENTER,
+    EOF, EQUALS, ENTER, Test,
 
-    STRING, IDENTIFIER
+    STRING, NUMBER, BOOLEAN, IDENTIFIER;
+
+    fun equals(type: TokenType): Boolean =
+        this == type
 }

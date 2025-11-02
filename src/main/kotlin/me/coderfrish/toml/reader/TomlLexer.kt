@@ -1,13 +1,17 @@
 package me.coderfrish.toml.reader
 
 import me.coderfrish.toml.base.BaseLexer
+import me.coderfrish.toml.shared.BOOLEAN_PATTERN
+import me.coderfrish.toml.tokens.TomlToken
 import me.coderfrish.toml.shared.IDENTIFIER_PATTERN
 import me.coderfrish.toml.shared.MatchUtils.matches
-import me.coderfrish.toml.tokens.TokenType.ENTER
 import me.coderfrish.toml.tokens.TokenType.STRING
+import me.coderfrish.toml.tokens.TokenType.NUMBER
 import me.coderfrish.toml.tokens.TokenType.EQUALS
-import me.coderfrish.toml.tokens.TomlToken
+import me.coderfrish.toml.tokens.TokenType.BOOLEAN
+import me.coderfrish.toml.tokens.TokenType.IDENTIFIER
 import me.coderfrish.toml.shared.QUOTA_NOT_CONSISTENT_EXCEPTION
+import me.coderfrish.toml.shared.DECIMAL_INTEGER_PATTERN
 import me.coderfrish.toml.tokens.TokenType
 
 class TomlLexer(str: String) : BaseLexer(str) {
@@ -17,31 +21,44 @@ class TomlLexer(str: String) : BaseLexer(str) {
             builder.append(peekWithAdvance())
         }
 
-        return TomlToken(TokenType.IDENTIFIER, builder)
+        return parseIdentifierToken(builder.toString())
     }
 
-    override fun parseEnter(): TomlToken {
-        advance()
-        return TomlToken(ENTER)
-    }
+    private fun parseIdentifierToken(string: String): TomlToken =
+        TomlToken(parseIdentifierType(string), string)
 
-    override fun parseEquals(): TomlToken {
-        advance()
-        return TomlToken(EQUALS, "=")
-    }
+    private fun parseIdentifierType(string: String): TokenType =
+        if (isNotTokenEmpty() && lastType().equals(EQUALS)) {
+            if (matches(string, DECIMAL_INTEGER_PATTERN))
+                BOOLEAN
+            else if (matches(string, BOOLEAN_PATTERN))
+                NUMBER
+            else
+                IDENTIFIER
+        } else {
+            IDENTIFIER
+        }
 
+    /* 除了解析字符串那边是一大坨其他都还行把... */
     override fun parseString(char: Char): TomlToken {
         this.advance()
         val builder = StringBuilder()
         while (peek() != '"' && peek() != '\'') {
             builder.append(peekWithAdvance())
         }
-        this.ensureStringQuotaConsistent(char)
+        if (peek() != char) error(QUOTA_NOT_CONSISTENT_EXCEPTION)
         this.advance()
-        return TomlToken(STRING, builder.toString())
+
+        return parseStringToken(builder.toString())
     }
 
-    private fun ensureStringQuotaConsistent(char: Char) {
-        if (peek() != char) error(QUOTA_NOT_CONSISTENT_EXCEPTION)
-    }
+    private fun parseStringToken(string: String): TomlToken =
+        TomlToken(parseStringType(), string)
+
+    private fun parseStringType(): TokenType =
+        if (isNotTokenEmpty() && lastType().equals(EQUALS)) {
+            STRING
+        } else {
+            IDENTIFIER
+        }
 }
