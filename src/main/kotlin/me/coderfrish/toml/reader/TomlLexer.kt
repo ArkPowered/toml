@@ -11,7 +11,6 @@ import me.coderfrish.toml.tokens.TokenType.NUMBER
 import me.coderfrish.toml.tokens.TokenType.EQUALS
 import me.coderfrish.toml.tokens.TokenType.BOOLEAN
 import me.coderfrish.toml.tokens.TokenType.IDENTIFIER
-import me.coderfrish.toml.shared.MatchUtils.isRawNumber
 import me.coderfrish.toml.shared.QUOTA_NOT_CONSISTENT_EXCEPTION
 
 
@@ -35,10 +34,8 @@ class TomlLexer(str: String) : BaseLexer(str) {
         if (isNotTokenEmpty() && lastType().equals(EQUALS)) {
             if (matches(string, BOOLEAN_PATTERN))
                 BOOLEAN
-            else if (isRawNumber(string))
-                NUMBER
             else
-                IDENTIFIER
+                NUMBER
         } else {
             IDENTIFIER
         }

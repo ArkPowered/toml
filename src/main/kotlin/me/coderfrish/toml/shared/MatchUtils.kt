@@ -12,10 +12,4 @@ object MatchUtils {
     fun matches(string: String, regex: Regex): Boolean {
         return string.matches(regex)
     }
-
-    fun isRawNumber(string: String): Boolean =
-        matches(string, DECIMAL_INTEGER_PATTERN) ||
-                matches(string, HEX_INTEGER_PATTERN) ||
-                matches(string, OCTAL_INTEGER_PATTERN) ||
-                matches(string, BINARY_INTEGER_PATTERN)
 }

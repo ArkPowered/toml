@@ -34,11 +34,10 @@ abstract class BaseParser(lexer: Lexer): Parser {
     private fun parse0() {
         when (peek().type) {
             TokenType.IDENTIFIER -> {
-                this.parseIdentifier()
+                this.identifier(peek())
             }
 
-            TokenType.ENTER,
-            TokenType.EOF-> {
+            TokenType.ENTER, TokenType.EOF-> {
                 advance()
             }
 
@@ -48,7 +47,7 @@ abstract class BaseParser(lexer: Lexer): Parser {
         }
     }
 
-    abstract fun parseIdentifier()
+    abstract fun identifier(key: TomlToken)
 
     private fun unknownToken(): Nothing =
         error("Unknown token type ${peek().type}")
