@@ -1,7 +1,10 @@
 package me.coderfrish.toml.tokens
 
+/**
+ * @author Frish2021
+ */
 enum class TokenType {
-    EOF, EQUALS, ENTER, Test,
+    EOF, EQUALS, ENTER,
 
     STRING, NUMBER, BOOLEAN, IDENTIFIER;
 

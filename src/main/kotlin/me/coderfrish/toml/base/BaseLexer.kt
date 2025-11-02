@@ -8,6 +8,10 @@ import me.coderfrish.toml.tokens.TomlToken
 import me.coderfrish.toml.tokens.TokenType.EOF
 import me.coderfrish.toml.tokens.TokenType.EQUALS
 
+/**
+ * @author Frish2021
+ * @see me.coderfrish.toml.reader.TomlLexer
+ */
 abstract class BaseLexer(protected val str: String) : Lexer {
     protected val tokens = LinkedList<TomlToken>()
     protected var offset = 0
@@ -71,12 +75,12 @@ abstract class BaseLexer(protected val str: String) : Lexer {
         return tokens
     }
 
-    fun parseEnter(): TomlToken {
+    private fun parseEnter(): TomlToken {
         advance()
         return TomlToken(ENTER)
     }
 
-    fun parseEquals(): TomlToken {
+    private fun parseEquals(): TomlToken {
         advance()
         return TomlToken(EQUALS, "=")
     }

@@ -1,7 +1,9 @@
 package me.coderfrish.test
 
 import me.coderfrish.toml.api.Lexer
+import me.coderfrish.toml.api.Parser
 import me.coderfrish.toml.reader.TomlLexer
+import me.coderfrish.toml.reader.TomlParser
 import kotlin.test.Test
 
 class LexerTest {
@@ -17,9 +19,7 @@ class LexerTest {
         """.trimIndent()
 
         val lexer: Lexer = TomlLexer(toml)
-//        lexer.tokenize()
-        for (token in lexer.tokenize()) {
-            println("${token.type} | ${token.value}")
-        }
+        val parser: Parser = TomlParser(lexer)
+        parser.parse()
     }
 }

@@ -14,6 +14,10 @@ import me.coderfrish.toml.shared.QUOTA_NOT_CONSISTENT_EXCEPTION
 import me.coderfrish.toml.shared.DECIMAL_INTEGER_PATTERN
 import me.coderfrish.toml.tokens.TokenType
 
+
+/**
+ * @author Frish2021
+ */
 class TomlLexer(str: String) : BaseLexer(str) {
     override fun parseIdentifier(): TomlToken {
         val builder = StringBuilder()
