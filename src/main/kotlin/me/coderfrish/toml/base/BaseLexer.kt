@@ -60,6 +60,10 @@ abstract class BaseLexer(protected val str: String) : Lexer {
                 tokens.add(parseEquals())
             }
 
+            ' ' -> this.skipWhitespace()
+
+            '#' -> this.skipComment()
+
             else -> {
                 tokens.add(parseIdentifier())
             }
@@ -73,6 +77,18 @@ abstract class BaseLexer(protected val str: String) : Lexer {
         tokens.add(TomlToken(EOF))
 
         return tokens
+    }
+
+    private fun skipComment() {
+        while (peek() != '\n') {
+            advance()
+        }
+    }
+
+    private fun skipWhitespace() {
+        while (peek().isWhitespace() && peek() != '\n') {
+            advance()
+        }
     }
 
     private fun parseEnter(): TomlToken {

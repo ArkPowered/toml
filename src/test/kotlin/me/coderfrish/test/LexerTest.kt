@@ -10,7 +10,8 @@ class LexerTest {
     @Test
     fun testLexer() {
         val toml = """
-            gfdgdfgd=-1000_000_000_000
+            # This header comments.
+            gfdgdfgd=-1000_000_000_000 # Hello World!!
             testfdfs=+1546546
             test=true
             1234=156
