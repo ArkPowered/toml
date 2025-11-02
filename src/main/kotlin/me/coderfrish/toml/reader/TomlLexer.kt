@@ -3,12 +3,12 @@ package me.coderfrish.toml.reader
 import me.coderfrish.toml.base.BaseLexer
 import me.coderfrish.toml.shared.IDENTIFIER_PATTERN
 import me.coderfrish.toml.shared.MatchUtils.matches
-import me.coderfrish.toml.token.TokenType.ENTER
-import me.coderfrish.toml.token.TokenType.STRING
-import me.coderfrish.toml.token.TokenType.EQUALS
-import me.coderfrish.toml.token.TomlToken
+import me.coderfrish.toml.tokens.TokenType.ENTER
+import me.coderfrish.toml.tokens.TokenType.STRING
+import me.coderfrish.toml.tokens.TokenType.EQUALS
+import me.coderfrish.toml.tokens.TomlToken
 import me.coderfrish.toml.shared.QUOTA_NOT_CONSISTENT_EXCEPTION
-import me.coderfrish.toml.token.TokenType
+import me.coderfrish.toml.tokens.TokenType
 
 class TomlLexer(str: String) : BaseLexer(str) {
     override fun parseIdentifier(): TomlToken {

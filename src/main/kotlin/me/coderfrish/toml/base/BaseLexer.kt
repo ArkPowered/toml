@@ -1,7 +1,7 @@
 package me.coderfrish.toml.base
 
 import me.coderfrish.toml.api.Lexer
-import me.coderfrish.toml.token.TomlToken
+import me.coderfrish.toml.tokens.TomlToken
 import java.util.LinkedList
 
 abstract class BaseLexer(protected val str: String) : Lexer {

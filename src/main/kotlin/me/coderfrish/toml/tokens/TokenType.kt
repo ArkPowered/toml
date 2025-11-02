@@ -1,4 +1,4 @@
-package me.coderfrish.toml.token
+package me.coderfrish.toml.tokens
 
 enum class TokenType {
     EQUALS, ENTER,
