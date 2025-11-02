@@ -1,63 +1,47 @@
 package me.coderfrish.toml.reader
 
-import me.coderfrish.toml.common.RegexUtils.isIdentifierPart
+import me.coderfrish.toml.base.BaseLexer
+import me.coderfrish.toml.shared.IDENTIFIER_PATTERN
+import me.coderfrish.toml.shared.MatchUtils.matches
+import me.coderfrish.toml.token.TokenType.ENTER
+import me.coderfrish.toml.token.TokenType.STRING
+import me.coderfrish.toml.token.TokenType.EQUALS
+import me.coderfrish.toml.token.TomlToken
+import me.coderfrish.toml.shared.QUOTA_NOT_CONSISTENT_EXCEPTION
+import me.coderfrish.toml.token.TokenType
 
-class TomlLexer(private val chars: CharArray) {
-    constructor(str: String): this(str.toCharArray())
-
-    private val tokens = mutableListOf<TomlToken>()
-    private var position = 0
-
-    private fun peek(): Char = chars[position]
-
-    private fun readString(): String {
+class TomlLexer(str: String) : BaseLexer(str) {
+    override fun parseIdentifier(): TomlToken {
         val builder = StringBuilder()
-        position++
-        while (peek() != '"') {
-            builder.append(chars[position++])
+        while (matches(peek(), IDENTIFIER_PATTERN)) {
+            builder.append(peekWithAdvance())
         }
-        position++
 
-        return builder.toString()
+        return TomlToken(TokenType.IDENTIFIER, builder)
     }
 
-    private fun readIdentifier(): String {
-        val builder = StringBuilder()
-        while (isIdentifierPart(chars[this.position]) || chars[this.position] == '.') {
-            builder.append(chars[this.position++])
-        }
-
-        return builder.toString()
+    override fun parseEnter(): TomlToken {
+        advance()
+        return TomlToken(ENTER)
     }
 
-    internal fun tokenize(): List<TomlToken> {
-        while (this.position < chars.size) {
-            when (chars[this.position]) {
-                '=' -> {
-                    tokens.add(TomlToken.equalsOf(
-                        chars[this.position++]
-                    ))
-                }
+    override fun parseEquals(): TomlToken {
+        advance()
+        return TomlToken(EQUALS, "=")
+    }
 
-                '\n', ' ' -> {
-                    position++
-                }
-
-                '"' -> {
-                    tokens.add(TomlToken.stringOf(
-                        readString()
-                    ))
-                }
-
-                else -> {
-                    tokens.add(TomlToken.identifierOf(
-                        readIdentifier()
-                    ))
-                }
-            }
+    override fun parseString(char: Char): TomlToken {
+        this.advance()
+        val builder = StringBuilder()
+        while (peek() != '"' && peek() != '\'') {
+            builder.append(peekWithAdvance())
         }
+        this.ensureStringQuotaConsistent(char)
+        this.advance()
+        return TomlToken(STRING, builder.toString())
+    }
 
-        tokens.add(TomlToken(TokenType.EOF, "eof"))
-        return this.tokens
+    private fun ensureStringQuotaConsistent(char: Char) {
+        if (peek() != char) error(QUOTA_NOT_CONSISTENT_EXCEPTION)
     }
 }

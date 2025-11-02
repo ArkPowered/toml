@@ -1,28 +1,22 @@
 package me.coderfrish.test
 
+import me.coderfrish.toml.api.Lexer
 import me.coderfrish.toml.reader.TomlLexer
-import me.coderfrish.toml.reader.TomlParser
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 class LexerTest {
     @Test
     fun testLexer() {
         val toml = """
-            admin=true
-            age=15
+            1234=156
             name="Frish2021"
-            message="Hello World!!"
+            "This a key"='Hello World!!'
         """.trimIndent()
 
-        /**
-         * admin=true
-         * name="Frish2021"
-         * message-text="Hello World!!!"
-         */
-
-        val lexer = TomlLexer(toml)
-        val parser = TomlParser(lexer)
-        val mapper = parser.parse()
-        println(mapper["admin"] is Boolean)
+        val lexer: Lexer = TomlLexer(toml)
+//        lexer.tokenize()
+        for (token in lexer.tokenize()) {
+            println("${token.type} | ${token.value}")
+        }
     }
 }
